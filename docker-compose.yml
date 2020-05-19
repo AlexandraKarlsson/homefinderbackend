@@ -26,13 +26,27 @@ services:
       - mysql
     command: ["./wait-for-it.sh","mysql:3306","--","npm","start"]
 
-  homefinderimages:
-    image: "nginx"
-    restart: always
+
+  # homefinderimages:
+  #  image: "nginx"
+  # restart: always
+  #  volumes:
+  #    - ../homefinderimages/:/usr/share/nginx/html
+  #  ports:
+  #    - 8010:80
+  
+  homefinderpictures:
+    image: "node:12"
+    # restart: always
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=docker-dev
     volumes:
-      - ../homefinderimages/:/usr/share/nginx/html
+      - ../homefinderpictures/:/home/node/app
     ports:
-      - 8010:80
+      - 8010:8010
+    command: ["npm","start"]
 
   homefinderutil:
     image: "node:12"
