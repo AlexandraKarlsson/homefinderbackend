@@ -197,6 +197,7 @@ const getImageByHome = async () => {
 }
 
 module.exports = {
+    homeFinderPoolPromise,
     getBrokers,
     getApartments,
     getHouses,
