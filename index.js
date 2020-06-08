@@ -7,8 +7,9 @@ Open a webbrowser and access:      http://localhost:8020/setupdb
 const express = require('express')
 const bodyParser = require('body-parser')
 const validator = require('validator');
+const bcrypt  = require('bcryptjs');
 const cors = require('cors');
-const { generateHash, generateAuthToken } = require('./security');
+const { generateHash, generateAuthToken, verifyAuthToken } = require('./security');
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome } = require('./database')
 const mySqlPool = homeFinderPoolPromise;
 
@@ -172,7 +173,7 @@ app.get('/user', async (request, response) => {
   console.log('\nRunning GET /user');
   try {
     const rows = await mySqlPool.query('SELECT * FROM user');
-    response.send({ rows });
+    response.send(rows[0]);
   } catch (error) {
     console.log(error);
     response.status(400).send();
@@ -184,7 +185,7 @@ app.delete('/user/:id', async (request, response) => {
   const id = request.params.id;
   try {
     const rows = await mySqlPool.query(`DELETE FROM user WHERE id=${id}`);
-    if (rows.affectedRows === 0) {
+    if (rows[0].affectedRows === 0) {
       response.status(404).send();
     } else {
       response.send({ rows });
@@ -229,18 +230,25 @@ app.post('/user/login', async (request, response) => {
   const access = 'auth';
 
   // console.log('POST /users/login');
-  // console.log('pemail',pemail);
-  // console.log('ppassword',ppassword);
+  console.log('pemail',pemail);
+  console.log('ppassword',ppassword);
 
   try {
     const rows = await mySqlPool.query(`SELECT * FROM user WHERE email='${pemail}'`);
     if (rows.length === 0) {
       throw `Login failed, email '${pemail}' not found!`;
     }
-    const id = rows[0].id;
-    const username = rows[0].username;
-    const password = rows[0].password;
-    const email = rows[0].email;
+    console.log('rows',rows);
+
+    const id = rows[0][0].id;
+    const username = rows[0][0].username;
+    const password = rows[0][0].password;
+    const email = rows[0][0].email;
+
+    console.log('id',id);
+    console.log('username',username);
+    console.log('password',password);
+    console.log('email',email);
 
     const match = await bcrypt.compare(ppassword, password);
     if (!match) {
@@ -250,7 +258,8 @@ app.post('/user/login', async (request, response) => {
     const token = generateAuthToken(id, access);
 
     const tokenResult = await mySqlPool.query(`INSERT INTO token (access,token,userid) VALUES ('${access}','${token}',${id})`);
-    if (tokenResult.affectedRows !== 1) {
+    console.log('tokenResult',tokenResult);
+    if (tokenResult[0].affectedRows !== 1) {
       throw "Could not insert token!";
     }
 
@@ -281,12 +290,12 @@ app.delete('/user/me/token', async (request, response) => {
       throw `Logout failed, user id '${id}' not found!`;
     }
 
-    const username = rows[0].username;
-    const email = rows[0].email;
+    const username = rows[0][0].username;
+    const email = rows[0][0].email;
 
     const tokenResult = await mySqlPool.query(`DELETE FROM token WHERE token='${token}' AND access='${access}'`);
     // console.log('tokenResult=',tokenResult);
-    if (tokenResult.affectedRows !== 1) {
+    if (tokenResult[0].affectedRows !== 1) {
       throw `Could not remove token, token='${token}' and  access='${access}' not found!`;
     }
     const user = { id, username, email };
