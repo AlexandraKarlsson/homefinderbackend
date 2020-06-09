@@ -92,19 +92,6 @@ const getApartments = async () => {
     return rows
 }
 
-const getHouses = async () => {
-    const query = 'SELECT * FROM house, home, sale WHERE house.homeid = home.id AND home.id = sale.homeid'
-    console.log(query)
-    const result = await homeFinderPoolPromise.query(query)
-    const rows = result[0]
-    console.log(`Number of rows ${rows.length}`)
-    for (let index = 0; index < rows.length; index++) {
-        const row = rows[index];
-        console.log(row);
-    }
-    return rows
-}
-
 const createHouse = async (houseData) => {
     console.log('Running createHouse ...')
     console.log(`houseData ${houseData}`)
@@ -146,6 +133,19 @@ const createHouse = async (houseData) => {
     await homeFinderPoolPromise.query('INSERT INTO sale SET ?', sale)
 
     return { homeId: result[0].insertId }
+}
+
+const getHouses = async () => {
+    const query = 'SELECT * FROM house, home, sale WHERE house.homeid = home.id AND home.id = sale.homeid'
+    console.log(query)
+    const result = await homeFinderPoolPromise.query(query)
+    const rows = result[0]
+    console.log(`Number of rows ${rows.length}`)
+    for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        console.log(row);
+    }
+    return rows
 }
 
 const createImage = async (imageData) => {

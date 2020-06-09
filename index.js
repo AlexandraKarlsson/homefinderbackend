@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 const validator = require('validator');
 const bcrypt  = require('bcryptjs');
 const cors = require('cors');
+const { authenticate } = require('./authenticate');
 const { generateHash, generateAuthToken, verifyAuthToken } = require('./security');
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome } = require('./database')
 const mySqlPool = homeFinderPoolPromise;
@@ -45,7 +46,7 @@ app.get('/apartment', async (request, response) => {
   }
 })
 
-app.post('/apartment', async (request, response) => {
+app.post('/apartment', authenticate, async (request, response) => {
   console.log('POST /apartment')
   const apartment = request.body
   console.log(apartment)
@@ -69,7 +70,7 @@ app.get('/house', async (request, response) => {
   }
 })
 
-app.post('/house', async (request, response) => {
+app.post('/house', authenticate, async (request, response) => {
   console.log('POST /house')
   const house = request.body
   console.log(house)
@@ -198,7 +199,7 @@ app.delete('/user/:id', async (request, response) => {
 
 app.get('/user/me', async (request, response) => {
   console.log('\nRunning GET /user/me');
-  const token = request.header('x-auth');
+  const token = request.header('x-auth');1
   // console.log('token=',token);
 
   try {
