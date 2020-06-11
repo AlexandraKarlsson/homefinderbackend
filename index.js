@@ -83,7 +83,7 @@ app.post('/house', authenticate, async (request, response) => {
   }
 })
 
-app.post('/image', async (request, response) => {
+app.post('/image', authenticate, async (request, response) => {
   console.log('POST /image')
   const image = request.body
   console.log(image)
