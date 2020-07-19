@@ -46,7 +46,7 @@ services:
       - ../homefinderpictures/:/home/node/app
     ports:
       - 8010:8010
-    command: ["npm","start"]
+    command: ["./wait-for-it.sh","mysql:3306","--","npm","start"]
 
   homefinderutil:
     image: "node:12"

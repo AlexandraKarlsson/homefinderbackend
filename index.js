@@ -11,7 +11,8 @@ const bcrypt  = require('bcryptjs');
 const cors = require('cors');
 const { authenticate } = require('./authenticate');
 const { generateHash, generateAuthToken, verifyAuthToken } = require('./security');
-const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome } = require('./database')
+const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome, getFavorites,
+addToFavorites, removeFromFavorites } = require('./database')
 const mySqlPool = homeFinderPoolPromise;
 
 const app = express()
@@ -306,6 +307,48 @@ app.delete('/user/me/token', async (request, response) => {
     response.status(400).send();
   }
 });
+
+app.get('/favorite', authenticate, async (request, response) => {
+  console.log('GET /favorite')
+  const userId = request.user.id;
+  console.log(`userid = ${userId}`)
+  try {
+    const result = await getFavorites(userId)
+    response.send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
+
+
+app.post('/favorite', authenticate, async (request, response) => {
+  console.log('POST /favorite')
+  const userId = request.user.id
+  const homeId = request.body.homeid
+  try {
+    const result = await addToFavorites(userId,homeId)
+    response.status(201).send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
+
+app.delete('/favorite', authenticate, async (request, response) => {
+  console.log('DELETE /favorite')
+  const userId = request.user.id
+  const homeId = request.body.homeid
+  try {
+    const result = await removeFromFavorites(userId,homeId)
+    response.send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
+
+
 
 /*------------------------------------------------------------------------------------------ */
 

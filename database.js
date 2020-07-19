@@ -196,6 +196,29 @@ const getImageByHome = async () => {
     return imageList
 }
 
+const getFavorites = async (userId) => {
+    const query = `SELECT homeid FROM favorite WHERE userid=${userId}`
+    const result = await homeFinderPoolPromise.query(query)
+    const rows = result[0]
+    console.log(`Number of rows ${rows.length}`)
+    for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        console.log(row);
+    }
+    return rows
+}
+
+const addToFavorites = async (userId, homeId) => {
+    const favoriteData = {userid : userId, homeid: homeId}
+    const result = await homeFinderPoolPromise.query('INSERT INTO favorite SET ?', favoriteData)
+    console.log(result)
+}
+
+const removeFromFavorites = async (userId, homeId) => {
+    const result = await homeFinderPoolPromise.query(`DELETE FROM favorite WHERE userid='${userId}' AND homeid='${homeId}'`)
+    console.log(result)
+}
+
 module.exports = {
     homeFinderPoolPromise,
     getBrokers,
@@ -205,5 +228,8 @@ module.exports = {
     createApartment,
     createImage,
     getImagesByHome,
-    getImageByHome
+    getImageByHome,
+    getFavorites,
+    addToFavorites,
+    removeFromFavorites
 }
