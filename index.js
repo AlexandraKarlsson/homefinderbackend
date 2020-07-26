@@ -335,10 +335,11 @@ app.post('/favorite', authenticate, async (request, response) => {
   }
 })
 
-app.delete('/favorite', authenticate, async (request, response) => {
-  console.log('DELETE /favorite')
+app.delete('/favorite/:homeid', authenticate, async (request, response) => {
+  console.log('DELETE /favorite/:homeid')
   const userId = request.user.id
-  const homeId = request.body.homeid
+  // const homeId = request.body.homeid
+  const homeId = request.homeid
   try {
     const result = await removeFromFavorites(userId,homeId)
     response.send(result)
@@ -348,7 +349,7 @@ app.delete('/favorite', authenticate, async (request, response) => {
   }
 })
 
-
+// TODO:  control the format which is sent to the frontend
 
 /*------------------------------------------------------------------------------------------ */
 
