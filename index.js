@@ -339,7 +339,9 @@ app.delete('/favorite/:homeid', authenticate, async (request, response) => {
   console.log('DELETE /favorite/:homeid')
   const userId = request.user.id
   // const homeId = request.body.homeid
-  const homeId = request.homeid
+  const homeId = request.params.homeid
+  console.log(`userId = ${userId}`)
+  console.log(`homeId = ${homeId}`)
   try {
     const result = await removeFromFavorites(userId,homeId)
     response.send(result)

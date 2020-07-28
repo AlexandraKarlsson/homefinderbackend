@@ -215,7 +215,9 @@ const addToFavorites = async (userId, homeId) => {
 }
 
 const removeFromFavorites = async (userId, homeId) => {
-    const result = await homeFinderPoolPromise.query(`DELETE FROM favorite WHERE userid='${userId}' AND homeid='${homeId}'`)
+    const sqlStatement = `DELETE FROM favorite WHERE userid=${userId} AND homeid=${homeId}`;
+    console.log(`sqlStatement = ${sqlStatement}`)
+    const result = await homeFinderPoolPromise.query(sqlStatement)
     console.log(result)
 }
 
