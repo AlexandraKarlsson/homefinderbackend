@@ -5,9 +5,9 @@ const getCurrentDate = () => {
 
     let currentDate = new Date(currentTime)
     let date = currentDate.getDate()
-    date = date.length < 2 ? `0${date}` : date 
+    date = date.length < 2 ? `0${date}` : date
     let month = currentDate.getMonth() + 1
-    month = month.length < 2 ? `0${month}` : month 
+    month = month.length < 2 ? `0${month}` : month
     let year = currentDate.getFullYear()
 
     // prints date & time in YYYY-MM-DD format
@@ -122,8 +122,10 @@ const createHouse = async (houseData) => {
 
     await homeFinderPoolPromise.query('INSERT INTO house SET ?', house)
 
+    // TODO: Extract method sale from createHouse/createApartment
     const sale = {
         date: getCurrentDate(),
+        // TODO: Add end date later
         price: houseData.price,
         homeid: homeid,
         brokerid: houseData.brokerid
@@ -133,6 +135,20 @@ const createHouse = async (houseData) => {
     await homeFinderPoolPromise.query('INSERT INTO sale SET ?', sale)
 
     return { homeId: result[0].insertId }
+}
+
+// TODO: continue this shit when date-time over REST API is clearified!! 
+const createSale = async (saleData) => {
+    console.log('Running createSale...');
+    const sale = {
+        date: getCurrentDate(),
+        userid: saleData.userid,
+        homeid: saleData.homeid
+    }
+    console.log(`Sale: ${sale}`)
+
+    const result = await homeFinderPoolPromise.query('INSERT INTO sale SET ?', sale)
+    console.log(result);
 }
 
 const getHouses = async () => {
@@ -209,7 +225,7 @@ const getFavorites = async (userId) => {
 }
 
 const addToFavorites = async (userId, homeId) => {
-    const favoriteData = {userid : userId, homeid: homeId}
+    const favoriteData = { userid: userId, homeid: homeId }
     const result = await homeFinderPoolPromise.query('INSERT INTO favorite SET ?', favoriteData)
     console.log(result)
 }
@@ -220,6 +236,61 @@ const removeFromFavorites = async (userId, homeId) => {
     const result = await homeFinderPoolPromise.query(sqlStatement)
     console.log(result)
 }
+
+const createBid = async (userId, saleId, price) => {
+    const maxBidQuery = `SELECT MAX(price) AS maxprice FROM bid WHERE saleid=${saleId}`
+    console.log(`maxBidQuery = ${maxBidQuery}`)
+    const maxBidResult = await homeFinderPoolPromise.query(maxBidQuery)
+    console.log(maxBidResult)
+    const maxBid = maxBidResult[0][0].maxprice
+    console.log(maxBid)
+
+    if (maxBid == null) {
+        const salePriceQuery = `SELECT price FROM sale WHERE id=${saleId}`
+        const salePriceResult = await homeFinderPoolPromise.query(salePriceQuery)
+        console.log(salePriceResult)
+        const salePrice = salePriceResult[0][0].price
+        console.log(salePrice)
+        if (price >= salePrice) {
+            const bidData = { userid: userId, saleid: saleId, price: price, date: getCurrentDate() }
+            const result = await homeFinderPoolPromise.query('INSERT INTO bid SET ?', bidData)
+            console.log(result)
+            // TODO: Check result ...
+            return 'OK';
+        } else {
+            return 'NOT_OK';
+        }
+    } else {
+        if (price > maxBid) {
+            const bidData = { userid: userId, saleid: saleId, price: price, date: getCurrentDate() }
+            const result = await homeFinderPoolPromise.query('INSERT INTO bid SET ?', bidData)
+            console.log(result)
+            // TODO:Check result ...
+            return 'OK';
+        } else {
+            return 'NOT_OK';
+        }
+    }
+}
+
+const getAllBid = async (saleId) => {
+    const query = `SELECT * FROM bid WHERE saleId=${saleId} ORDER BY price DESC`
+    console.log(`query = ${query}`)
+    const result = await homeFinderPoolPromise.query(query)
+    console.log(`result = ${result}`)
+    const rows = result[0]
+    return rows
+}
+
+/*
+
+// Needed?
+
+const getHighestBid = async (saleId) => {
+
+}
+*/
+
 
 module.exports = {
     homeFinderPoolPromise,
@@ -233,5 +304,7 @@ module.exports = {
     getImageByHome,
     getFavorites,
     addToFavorites,
-    removeFromFavorites
+    removeFromFavorites,
+    createBid,
+    getAllBid
 }

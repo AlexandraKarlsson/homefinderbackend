@@ -4,16 +4,18 @@ Open a powershell window and run:  docker-compose up
 Open a webbrowser and access:      http://localhost:8020/setupdb
 */
 
+
 const express = require('express')
 const bodyParser = require('body-parser')
-const validator = require('validator');
-const bcrypt  = require('bcryptjs');
-const cors = require('cors');
-const { authenticate } = require('./authenticate');
-const { generateHash, generateAuthToken, verifyAuthToken } = require('./security');
+const validator = require('validator')
+const bcrypt  = require('bcryptjs')
+const cors = require('cors')
+const { authenticate } = require('./authenticate')
+const { makeBid } = require('./bidAccess')
+const { generateHash, generateAuthToken, verifyAuthToken } = require('./security')
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome, getFavorites,
-addToFavorites, removeFromFavorites } = require('./database')
-const mySqlPool = homeFinderPoolPromise;
+addToFavorites, removeFromFavorites, createBid, getAllBid } = require('./database')
+const mySqlPool = homeFinderPoolPromise
 
 const app = express()
 const corsOptions = {
@@ -308,6 +310,10 @@ app.delete('/user/me/token', async (request, response) => {
   }
 });
 
+// ====================
+// FAVORITES
+// ====================
+
 app.get('/favorite', authenticate, async (request, response) => {
   console.log('GET /favorite')
   const userId = request.user.id;
@@ -351,7 +357,65 @@ app.delete('/favorite/:homeid', authenticate, async (request, response) => {
   }
 })
 
-// TODO:  control the format which is sent to the frontend
+// ====================
+// BIDDING
+// ====================
+
+// Make a bid
+app.post('/bid', authenticate, async (request,response) => {
+  console.log('POST /bid')
+  const userId = request.user.id
+  const saleId = request.body.saleid
+  const price  = request.body.price
+  console.log(`userid = ${userId} saleid = ${saleId} price = ${price}`)
+
+  try {
+    const result = await makeBid(userId,saleId,price)
+    console.log(result)
+    if(result == 'OK') {
+      response.status(201).send({result})
+    } else if(result == 'NOT_OK') {
+      response.status(400).send({result})
+    } else {
+      response.status(400).send({result})
+    }   
+  } catch (error) {
+    response.status(400).send({result : 'Something went terribly wrong'})
+  }
+})
+
+
+
+
+// Get all bid for a sale
+app.get('/bid/all', authenticate, async (request, response) => {
+  console.log('GET /bid/all')
+  const userId = request.user.id
+  const saleId = request.body.saleid
+  console.log(`userid = ${userId} saleid = ${saleId}`)
+  try {
+    const result = await getAllBid(saleId)
+   response.send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
+
+// Get highest bid for a sale
+app.get('/bid/highest', authenticate, async (request, response) => {
+  console.log('GET /bid/highest')
+  const userId = request.user.id
+  const saleId = request.body.saleid
+  console.log(`userid = ${userId} saleid = ${saleId}`)
+  try {
+    const result = await getHighestBid(saleId)
+   response.send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
 
 /*------------------------------------------------------------------------------------------ */
 
