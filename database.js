@@ -80,7 +80,7 @@ const createApartment = async (apartmentData) => {
 }
 
 const getApartments = async () => {
-    const query = 'SELECT * FROM apartment, home, sale WHERE apartment.homeid = home.id AND home.id = sale.homeid'
+    const query = 'SELECT *, sale.id AS saleid, apartment.id AS apartmentid, home.id AS homeid FROM apartment, home, sale WHERE apartment.homeid = home.id AND home.id = sale.homeid'
     console.log(query)
     const result = await homeFinderPoolPromise.query(query)
     const rows = result[0]
@@ -152,7 +152,7 @@ const createSale = async (saleData) => {
 }
 
 const getHouses = async () => {
-    const query = 'SELECT * FROM house, home, sale WHERE house.homeid = home.id AND home.id = sale.homeid'
+    const query = 'SELECT *, sale.id AS saleid, house.id AS houseid, home.id AS homeid FROM house, home, sale WHERE house.homeid = home.id AND home.id = sale.homeid'
     console.log(query)
     const result = await homeFinderPoolPromise.query(query)
     const rows = result[0]
