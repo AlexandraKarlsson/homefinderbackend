@@ -85,9 +85,20 @@ const getApartments = async () => {
     const result = await homeFinderPoolPromise.query(query)
     const rows = result[0]
     console.log(`Number of rows ${rows.length}`)
+
+    // TODO: refactor to separate methods?
+    // Iterate through all apartments
     for (let index = 0; index < rows.length; index++) {
         const row = rows[index];
         console.log(row);
+
+        //  if bids exist and get the highest bid
+        const maxBid = await getHighestBid(row.saleid)
+        console.log(`maxBid: ${maxBid}`)
+        if(maxBid != null) {
+            row.price = maxBid
+            console.log(`price: ${row.price}`)
+        }
     }
     return rows
 }
@@ -160,6 +171,19 @@ const getHouses = async () => {
     for (let index = 0; index < rows.length; index++) {
         const row = rows[index];
         console.log(row);
+    }
+
+    for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        console.log(row);
+
+        //  if bids exist and get the highest bid
+        const maxBid = await getHighestBid(row.saleid)
+        console.log(`maxBid: ${maxBid}`)
+        if(maxBid != null) {
+            row.price = maxBid
+            console.log(`price: ${row.price}`)
+        }
     }
     return rows
 }
@@ -237,13 +261,24 @@ const removeFromFavorites = async (userId, homeId) => {
     console.log(result)
 }
 
-const createBid = async (userId, saleId, price) => {
+
+//
+// Bid methods
+//
+
+const getHighestBid = async (saleId) => {
     const maxBidQuery = `SELECT MAX(price) AS maxprice FROM bid WHERE saleid=${saleId}`
     console.log(`maxBidQuery = ${maxBidQuery}`)
     const maxBidResult = await homeFinderPoolPromise.query(maxBidQuery)
     console.log(maxBidResult)
     const maxBid = maxBidResult[0][0].maxprice
     console.log(maxBid)
+    return maxBid
+}
+
+const createBid = async (userId, saleId, price) => {
+
+    const maxBid = await getHighestBid(saleId)
 
     if (maxBid == null) {
         const salePriceQuery = `SELECT price FROM sale WHERE id=${saleId}`
@@ -282,15 +317,14 @@ const getAllBid = async (saleId) => {
     return rows
 }
 
-/*
-
-// Needed?
-
-const getHighestBid = async (saleId) => {
-
+const getAllUserBid = async (userId) => {
+    const query = `SELECT * FROM bid WHERE userId=${userId}`
+    console.log(`query = ${query}`)
+    const result = await homeFinderPoolPromise.query(query)
+    console.log(`result = ${result}`)
+    const rows = result[0]
+    return rows
 }
-*/
-
 
 module.exports = {
     homeFinderPoolPromise,
@@ -306,5 +340,6 @@ module.exports = {
     addToFavorites,
     removeFromFavorites,
     createBid,
-    getAllBid
+    getAllBid,
+    getAllUserBid
 }

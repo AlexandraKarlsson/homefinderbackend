@@ -14,7 +14,7 @@ const { authenticate } = require('./authenticate')
 const { makeBid } = require('./bidAccess')
 const { generateHash, generateAuthToken, verifyAuthToken } = require('./security')
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome, getFavorites,
-addToFavorites, removeFromFavorites, createBid, getAllBid } = require('./database')
+addToFavorites, removeFromFavorites, createBid, getAllBid, getAllUserBid } = require('./database')
 const mySqlPool = homeFinderPoolPromise
 
 const app = express()
@@ -377,12 +377,14 @@ app.post('/bid', authenticate, async (request,response) => {
     } else if(result == 'NOT_OK') {
       response.status(400).send({result})
     } else {
+      // 'EXCEPTION' 
       response.status(400).send({result})
     }   
   } catch (error) {
     response.status(400).send({result : 'Something went terribly wrong'})
   }
 })
+
 
 
 
@@ -395,6 +397,20 @@ app.get('/bid/all', authenticate, async (request, response) => {
   console.log(`userid = ${userId} saleid = ${saleId}`)
   try {
     const result = await getAllBid(saleId)
+   response.send(result)
+  } catch (error) {
+    console.log(error)
+    response.status(400).send()
+  }
+})
+
+// Get all the user bids
+app.get('/bid/user', authenticate, async (request, response) => {
+  console.log('GET /bid/user')
+  const userId = request.user.id
+  console.log(`userid = ${userId}`)
+  try {
+    const result = await getAllUserBid(userId)
    response.send(result)
   } catch (error) {
     console.log(error)
