@@ -14,7 +14,7 @@ const { authenticate } = require('./authenticate')
 const { makeBid } = require('./bidAccess')
 const { generateHash, generateAuthToken, verifyAuthToken } = require('./security')
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome, getFavorites,
-addToFavorites, removeFromFavorites, createBid, getAllBid, getAllUserBid } = require('./database')
+addToFavorites, removeFromFavorites, createBid, getAllBid, getAllUserBid, getHighestBid } = require('./database')
 const mySqlPool = homeFinderPoolPromise
 
 const app = express()
@@ -419,14 +419,16 @@ app.get('/bid/user', authenticate, async (request, response) => {
 })
 
 // Get highest bid for a sale
-app.get('/bid/highest', authenticate, async (request, response) => {
+app.get('/bid/highest/:saleid', authenticate, async (request, response) => {
   console.log('GET /bid/highest')
   const userId = request.user.id
-  const saleId = request.body.saleid
+  const saleId = request.params.saleid
   console.log(`userid = ${userId} saleid = ${saleId}`)
   try {
     const result = await getHighestBid(saleId)
-   response.send(result)
+    const highestBid = {result}
+    console.log(highestBid)
+    response.send(highestBid)
   } catch (error) {
     console.log(error)
     response.status(400).send()

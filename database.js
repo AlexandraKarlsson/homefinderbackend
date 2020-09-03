@@ -341,5 +341,6 @@ module.exports = {
     removeFromFavorites,
     createBid,
     getAllBid,
-    getAllUserBid
+    getAllUserBid,
+    getHighestBid
 }
