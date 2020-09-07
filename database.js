@@ -312,8 +312,9 @@ const getAllBid = async (saleId) => {
     const query = `SELECT * FROM bid WHERE saleId=${saleId} ORDER BY price DESC`
     console.log(`query = ${query}`)
     const result = await homeFinderPoolPromise.query(query)
-    console.log(`result = ${result}`)
+    //console.log(result)
     const rows = result[0]
+    console.log(rows)
     return rows
 }
 

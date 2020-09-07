@@ -390,10 +390,10 @@ app.post('/bid', authenticate, async (request,response) => {
 
 
 // Get all bid for a sale
-app.get('/bid/all', authenticate, async (request, response) => {
+app.get('/bid/all/:saleid', authenticate, async (request, response) => {
   console.log('GET /bid/all')
   const userId = request.user.id
-  const saleId = request.body.saleid
+  const saleId = request.params.saleid
   console.log(`userid = ${userId} saleid = ${saleId}`)
   try {
     const result = await getAllBid(saleId)
