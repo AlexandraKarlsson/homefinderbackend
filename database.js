@@ -277,7 +277,7 @@ const getHighestBid = async (saleId) => {
 }
 
 const createBid = async (userId, saleId, price) => {
-
+    
     const maxBid = await getHighestBid(saleId)
 
     if (maxBid == null) {

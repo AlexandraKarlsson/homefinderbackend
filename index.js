@@ -14,13 +14,15 @@ const { authenticate } = require('./authenticate')
 const { makeBid } = require('./bidAccess')
 const { generateHash, generateAuthToken, verifyAuthToken } = require('./security')
 const { homeFinderPoolPromise, getBrokers, getApartments, getHouses, createHouse, createApartment, createImage, getImagesByHome, getImageByHome, getFavorites,
-addToFavorites, removeFromFavorites, createBid, getAllBid, getAllUserBid, getHighestBid } = require('./database')
+addToFavorites, removeFromFavorites, getAllBid, getAllUserBid, getHighestBid } = require('./database')
 const mySqlPool = homeFinderPoolPromise
 
 const app = express()
 const corsOptions = {
   exposedHeaders: 'x-auth'
 };
+// Below code are used to delay request from frontend
+// app.use(function(req,res,next){setTimeout(next,3000)});
 app.use(cors(corsOptions));
 app.use(bodyParser.json())
 const port = 8000
