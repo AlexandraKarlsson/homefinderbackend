@@ -22,7 +22,7 @@ const corsOptions = {
   exposedHeaders: 'x-auth'
 };
 // Below code are used to delay request from frontend
-// app.use(function(req,res,next){setTimeout(next,3000)});
+app.use(function(req,res,next){setTimeout(next,1500)});
 app.use(cors(corsOptions));
 app.use(bodyParser.json())
 const port = 8000
