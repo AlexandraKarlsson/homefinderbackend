@@ -412,8 +412,8 @@ app.get('/bid/user', authenticate, async (request, response) => {
   const userId = request.user.id
   console.log(`userid = ${userId}`)
   try {
-    const result = await getAllUserBid(userId)
-   response.send(result)
+    const rows = await getAllUserBid(userId)
+   response.send({rows})
   } catch (error) {
     console.log(error)
     response.status(400).send()

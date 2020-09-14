@@ -319,10 +319,11 @@ const getAllBid = async (saleId) => {
 }
 
 const getAllUserBid = async (userId) => {
-    const query = `SELECT * FROM bid WHERE userId=${userId}`
+    const query = `SELECT saleid,MAX(price) AS price FROM bid WHERE userId=${userId} GROUP BY saleid`
     console.log(`query = ${query}`)
     const result = await homeFinderPoolPromise.query(query)
-    console.log(`result = ${result}`)
+    console.log(result)
+    console.log(result[0])
     const rows = result[0]
     return rows
 }
